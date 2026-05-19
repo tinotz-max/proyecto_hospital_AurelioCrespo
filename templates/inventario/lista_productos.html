@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📦 Catálogo de Insumos</h2>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Volver al Dashboard</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Código OCASA</th>
+                        <th>Nombre / Descripción</th>
+                        <th>Tipo</th>
+                        <th>Refrigeración</th>
+                        <th>Nivel de Riesgo</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in productos %}
+                    <tr>
+                        <td><span class="badge bg-light text-dark border">{{ p.codigo_ocasa }}</span></td>
+                        <td><strong>{{ p.nombre }}</strong></td>
+                        <td>{{ p.get_tipo_producto_display }}</td>
+                        <td>
+                            {% if p.refrigeracion %}
+                                <span class="badge bg-info text-dark">❄️ Sí</span>
+                            {% else %}
+                                <span class="text-muted small">No</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ p.nivel_riesgo }}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-primary">Ver Lotes</button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No hay productos registrados aún.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

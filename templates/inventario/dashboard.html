@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2 class="display-5 text-primary">Panel de Control Hospitalario</h2>
+        <p class="text-muted">Resumen en tiempo real del Hospital Aurelio Crespo.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card border-start border-primary border-4 shadow-sm h-100">
+            <div class="card-body text-center">
+                <h6 class="text-uppercase text-muted small fw-bold">Capacidad de Almacenaje</h6>
+                <h2 class="display-4">{{ total_huecos }}</h2>
+                <p class="mb-0 text-success small">Libres: {{ huecos_libres }}</p>
+                <a href="{% url 'lista_huecos' %}" class="btn btn-sm btn-outline-primary mt-3">Ver Huecos</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card border-start border-info border-4 shadow-sm h-100">
+            <div class="card-body text-center">
+                <h6 class="text-uppercase text-muted small fw-bold">Personal Supervisor</h6>
+                <h2 class="display-4">{{ total_supervisores }}</h2>
+                <a href="{% url 'lista_supervisores' %}" class="btn btn-sm btn-outline-info mt-3">Gestionar Equipo</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card border-start border-success border-4 shadow-sm h-100">
+            <div class="card-body text-center">
+                <h6 class="text-uppercase text-muted small fw-bold">Lotes en Stock</h6>
+                <h2 class="display-4">{{ total_lotes }}</h2>
+                <a href="{% url 'lista_lotes' %}" class="btn btn-sm btn-outline-success mt-3">Revisar Vencimientos</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12 text-center py-4 bg-white rounded shadow-sm">
+        <h5 class="text-muted mb-3">Acciones Rápidas</h5>
+        <a href="{% url 'crear_producto' %}" class="btn btn-primary btn-lg me-2">➕ Cargar Insumo</a>
+        <a href="{% url 'crear_lote' %}" class="btn btn-success btn-lg">💉 Registrar Lote</a>
+    </div>
+</div>
+{% endblock %}

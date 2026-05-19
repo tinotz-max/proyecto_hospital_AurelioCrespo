@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>💉 Control de Lotes y Vencimientos</h2>
+    <a href="{% url 'crear_lote' %}" class="btn btn-success">+ Nuevo Ingreso</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Producto</th>
+                    <th>Nro. Lote</th>
+                    <th>Laboratorio</th>
+                    <th>Vencimiento</th>
+                    <th>Cantidad</th>
+                    <th>Ubicación</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lote in lotes %}
+                <tr>
+                    <td><strong>{{ lote.producto.nombre }}</strong></td>
+                    <td><code>{{ lote.nro_lote }}</code></td>
+                    <td>{{ lote.laboratorio.nombre|default:"-" }}</td>
+                    <td>
+                        <span class="fw-bold {% if lote.vencimiento <= user.date_joined %}text-danger{% endif %}">
+                            {{ lote.vencimiento|date:"d/m/Y" }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge {% if lote.cantidad_actual < 10 %}bg-warning text-dark{% else %}bg-info{% endif %} fs-6">
+                            {{ lote.cantidad_actual }} un.
+                        </span>
+                    </td>
+                    <td><small class="text-muted">{{ lote.sector }} (Dep. {{ lote.nro_deposito }})</small></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger">Registrar Salida</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-4">No hay lotes con stock actualmente.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Registrar Nuevo Insumo</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.nombre.label_tag }} {{ form.nombre }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.tipo_producto.label_tag }} {{ form.tipo_producto }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.codigo_ocasa.label_tag }} {{ form.codigo_ocasa }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.nivel_riesgo.label_tag }} {{ form.nivel_riesgo }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.procedencia.label_tag }} {{ form.procedencia }}
+                    </div>
+                    <div class="form-check mb-4">
+                        {{ form.refrigeracion }}
+                        <label class="form-check-label">¿Requiere refrigeración?</label>
+                    </div>
+                    
+                    <hr>
+                    <div class="d-flex justify-content-end">
+                        <a href="{% url 'lista_productos' %}" class="btn btn-light me-2">Cancelar</a>
+                        <button type="submit" class="btn btn-success px-4">Guardar Producto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

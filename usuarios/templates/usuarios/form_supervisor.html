@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-primary text-white py-3 text-center">
+                <h4 class="mb-0">{% if editando %}Editar Datos de Supervisor{% else %}Registrar Nuevo Supervisor{% endif %}</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <h6 class="text-primary border-bottom pb-2 mb-3">Datos de Acceso</h6>
+                    <div class="mb-3">
+                        {{ form.username.label_tag }} {{ form.username }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.email.label_tag }} {{ form.email }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.password.label_tag }} {{ form.password }}
+                    </div>
+
+                    <h6 class="text-primary border-bottom pb-2 mt-4 mb-3">Información Institucional</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.legajo.label_tag }} {{ form.legajo }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.rol.label_tag }} {{ form.rol }}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <a href="{% url 'lista_supervisores' %}" class="btn btn-light me-2">Cancelar</a>
+                        <button type="submit" class="btn btn-success px-4">Crear Cuenta</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
