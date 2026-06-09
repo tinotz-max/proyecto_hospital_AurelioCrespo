@@ -35,13 +35,36 @@ class LoteForm(forms.ModelForm):
         }
 
 
+from django import forms
+from .models import Hueco, HistorialRetiro
+
 class HuecoForm(forms.ModelForm):
     class Meta:
         model = Hueco
-        fields = ['codigo', 'nro_deposito', 'sector', 'estado']
+        # Incluimos los campos nuevos que definimos en el modelo
+        fields = [
+            'codigo_identificador', 
+            'insumo_nombre', 
+            'cantidad_actual', 
+            'capacidad_maxima', 
+            'departamento_asignado',
+            'estado'
+        ]
         widgets = {
-            'codigo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Estante-A1'}),
-            'nro_deposito': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 1'}),
-            'sector': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Guardia / Farmacia'}),
-            'estado': forms.Select(attrs={'class': 'form-select'}),
+            'codigo_identificador': forms.TextInput(attrs={'class': 'form-control'}),
+            'insumo_nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'cantidad_actual': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'capacidad_maxima': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'departamento_asignado': forms.Select(attrs={'class': 'form-control'}),
+            'estado': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+# Aprovechamos para crear el formulario del nuevo historial solicitado
+class RetiroForm(forms.ModelForm):
+    class Meta:
+        model = HistorialRetiro
+        fields = ['departamento_destino', 'cantidad_retirada']
+        widgets = {
+            'departamento_destino': forms.Select(attrs={'class': 'form-control'}),
+            'cantidad_retirada': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
         }

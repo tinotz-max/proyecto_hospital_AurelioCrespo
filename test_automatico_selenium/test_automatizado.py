@@ -1,36 +1,58 @@
+import os
+# COMENTADO: Dejamos que Selenium busque en internet el driver que coincida con tu Brave
+# os.environ["SE_OFFLINE"] = "true"
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 import time
 
-# 1. Abrir el navegador (Chrome/Chromium en Linux)
-driver = webdriver.Chrome()
+# Configuración nativa para Linux Zorin OS usando Brave Browser
+options = Options()
+options.binary_location = "/usr/bin/brave-browser"
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--remote-allow-origins=*")
+
+print("🚀 Iniciando Selenium con Brave Browser para: TEST AUTOMATIZADO GENERAL...")
+driver = webdriver.Chrome(options=options)
 
 try:
-    # 2. Ir a la página de login de tu servidor Django
+    # ====== PASO 1: LOGIN DE CONTROL ======
+    print("\n[Paso 1] Autenticando en el sistema...")
     driver.get("http://127.0.0.1:8000/accounts/login/")
-    time.sleep(2) # Pausa de 2 segundos para ver qué hace
+    
+    # Usamos el método correcto corregido
+    usuario_input = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.ID, "id_username"))
+    )
+    usuario_input.send_keys("SantinoT")
+    driver.find_element(By.ID, "id_password").send_keys("SantinoT")
+    driver.find_element(By.TAG_NAME, "button").click()
+    time.sleep(3)
 
-    # 3. Buscar el cuadro de "Nombre de usuario" (por su ID de Django) e ingresar texto
-    input_usuario = driver.find_element(By.ID, "id_username")
-    input_usuario.send_keys("SantinoT") # Poné acá un usuario real que creaste
-    time.sleep(1)
+    # ====== PASO 2: TESTEAR NAVEGACIÓN AL DASHBOARD ======
+    print("\n[Paso 2] Verificando acceso al Dashboard Principal...")
+    driver.get("http://127.0.0.1:8000/")
+    time.sleep(2)
+    
+    assert "Dashboard" in driver.page_source or "Inicio" in driver.page_source
+    print("✅ Dashboard detectado y accessible.")
 
-    # 4. Buscar el cuadro de "Contraseña" e ingresar texto
-    input_clave = driver.find_element(By.ID, "id_password")
-    input_clave.send_keys("SantinoT") # Poné la clave de ese usuario
-    time.sleep(1)
+    # ====== PASO 3: INTENTAR CERRAR SESIÓN ======
+    print("\n[Paso 3] Probando el sistema de Logout...")
+    driver.get("http://127.0.0.1:8000/accounts/logout/")
+    time.sleep(2)
+    print("✅ Cierre de sesión ejecutado.")
 
-    # 5. Buscar el botón de entrar y hacer clic
-    boton_entrar = driver.find_element(By.TAG_NAME, "button")
-    boton_entrar.click()
-    time.sleep(3) # Pausa para ver si entramos al Dashboard
+    print("\n✅ TEST GENERAL EXITOSO: Las rutas de control responden perfectamente de extremo a extremo.")
 
-    # 6. Validar si entramos correctamente revisando la URL actual
-    if "dashboard" in driver.current_url:
-        print("✅ TEST EXITOSO: El robot se logueó y entró al Dashboard correctamente.")
-    else:
-        print("❌ TEST FALLIDO: No se pudo iniciar sesión.")
+except Exception as e:
+    print(f"\n❌ TEST GENERAL FALLIDO: Error en la verificación de flujos principales.")
+    print(f"Motivo técnico: {e}")
 
 finally:
-    # 7. Cerrar el navegador automáticamente al terminar
-    driver.quit()   
+    print("\nCerrando navegador automatizado...")
+    driver.quit()

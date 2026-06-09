@@ -124,3 +124,53 @@ def dashboard(request):
         'total_lotes': Lote.objects.count(),
     }
     return render(request, 'inventario/dashboard.html', context)
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .models import Hueco, HistorialRetiro, Departamento
+
+@login_required
+def registrar_retiro(request, hueco_id):
+    hueco = get_object_or_404(Hueco, id=hueco_id)
+    departamentos = Departamento.objects.all()
+    
+    if request.method == 'POST':
+        id_dep_destino = request.POST.get('departamento_destino')
+        cantidad = int(request.POST.get('cantidad_retirada'))
+        dep_destino = get_object_or_404(Departamento, id=id_dep_destino)
+        
+        # Validación crítica: ¿Hay stock suficiente en este almacén provisional?
+        if cantidad > hueco.cantidad_actual:
+            messages.error(request, f"Error: No podés retirar {cantidad} unidades. El hueco solo tiene {hueco.cantidad_actual} disponibles.")
+            return render(request, 'inventario/registrar_retiro.html', {'hueco': hueco, 'departamentos': departamentos})
+        
+        # 1. Restamos el stock del hueco
+        hueco.cantidad_actual -= cantidad
+        if hueco.cantidad_actual == 0:
+            hueco.estado = 'VACIO'
+        elif hueco.cantidad_actual < (hueco.capacidad_maxima * 0.2): # menos del 20%
+            hueco.estado = 'CRITICO'
+        hueco.save()
+        
+        # 2. Creamos la línea en el historial detallado de movimientos
+        HistorialRetiro.objects.create(
+            hueco=hueco,
+            insumo_retirado=hueco.insumo_nombre,
+            departamento_destino=dep_destino,
+            ubicacion_en_retiro=f"Piso: {dep_destino.piso_ubicacion} - Sector: {dep_destino.nombre}",
+            cantidad_retirada=cantidad,
+            usuario_supervisor=request.user # El usuario logueado en Brave
+        )
+        
+        messages.success(request, f"Retiro de {cantidad} {hueco.insumo_nombre} asentado en el historial con éxito.")
+        return redirect('lista_huecos') # O la vista de tu dashboard
+
+    return render(request, 'inventario/registrar_retiro.html', {'hueco': hueco, 'departamentos': departamentos})
+
+
+@login_required
+def ver_historial_movimientos(request):
+    """Vista para renderizar la tabla del historial general exigido"""
+    movimientos = HistorialRetiro.objects.all().order_by('-fecha_retiro')
+    return render(request, 'inventario/historial.html', {'movimientos': movimientos})

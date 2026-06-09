@@ -68,3 +68,57 @@ class Movimiento(models.Model):
 
     def __str__(self):
         return f"{self.tipo} - {self.lote.producto.nombre}"
+
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+
+class Departamento(models.Model):
+    nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre del Departamento")
+    piso_ubicacion = models.CharField(max_length=50, blank=True, null=True, verbose_name="Ubicación/Piso")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __str__(self):
+        return self.nombre
+
+
+class Hueco(models.Model):
+    ESTADOS = [
+        ('DISPONIBLE', 'Con Stock'),
+        ('CRITICO', 'Stock Crítico'),
+        ('VACIO', 'Sin Stock'),
+    ]
+    
+    codigo_identificador = models.CharField(max_length=50, unique=True, verbose_name="Código de Hueco/Botiquín")
+    insumo_nombre = models.CharField(max_length=100, verbose_name="Medicamento / Insumo")
+    cantidad_actual = models.PositiveIntegerField(default=0, verbose_name="Cantidad Disponible")
+    capacidad_maxima = models.PositiveIntegerField(verbose_name="Capacidad Máxima de Almacenaje")
+    departamento_asignado = models.ForeignKey(Departamento, on_delete=models.CASCADE, related_name="huecos", verbose_name="Departamento Destino")
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='DISPONIBLE')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.codigo_identificador} - {self.insumo_nombre} ({self.departamento_asignado.nombre})"
+
+
+class HistorialRetiro(models.Model):
+    """
+    Esta es la tabla principal solicitada para construir el historial detallado de movimientos.
+    """
+    hueco = models.ForeignKey(Hueco, on_delete=models.SET_NULL, null=True, related_name="retiros", verbose_name="Hueco de Origen")
+    insumo_retirado = models.CharField(max_length=100, verbose_name="Insumo Extraído") # Guardamos el texto por si el hueco se borra
+    departamento_destino = models.ForeignKey(Departamento, on_delete=models.CASCADE, verbose_name="Departamento/Uso Destinado")
+    ubicacion_en_retiro = models.CharField(max_length=150, verbose_name="Ubicación exacta al momento del retiro")
+    cantidad_retirada = models.PositiveIntegerField(verbose_name="Cantidad Retirada")
+    fecha_retiro = models.DateTimeField(default=timezone.now, verbose_name="Fecha y Hora del Retiro")
+    usuario_supervisor = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Supervisor Responsable")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __str__(self):
+        return f"Retiro {self.cantidad_retirada}x {self.insumo_retirated} -> {self.departamento_destino.nombre} ({self.fecha_retiro.strftime('%d/%m/%Y %H:%M')})"
