@@ -1,51 +1,127 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-md-12">
-        <h2 class="display-5 text-primary">Panel de Control Hospitalario</h2>
-        <p class="text-muted">Resumen en tiempo real del Hospital Aurelio Crespo.</p>
-    </div>
-</div>
+<div class="container py-4" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
 
-<div class="row">
-    <div class="col-md-4 mb-4">
-        <div class="card border-start border-primary border-4 shadow-sm h-100">
-            <div class="card-body text-center">
-                <h6 class="text-uppercase text-muted small fw-bold">Capacidad de Almacenaje</h6>
-                <h2 class="display-4">{{ total_huecos }}</h2>
-                <p class="mb-0 text-success small">Libres: {{ huecos_libres }}</p>
-                <a href="{% url 'lista_huecos' %}" class="btn btn-sm btn-outline-primary mt-3">Ver Huecos</a>
+    <div class="position-relative p-5 mb-5 text-white rounded-3 shadow-sm overflow-hidden" 
+         style="background: linear-gradient(135deg, rgba(10, 37, 64, 0.94) 0%, rgba(15, 118, 110, 0.85) 100%), 
+                    url('{% static 'img/hospital_bg.jpg' %}') center/cover no-repeat; min-height: 240px;">
+        
+        <div class="position-relative z-1 max-w-2xl">
+            <span class="badge bg-info text-dark px-3 py-1.5 rounded-pill uppercase fw-bold mb-3 tracking-wider" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                Módulo de Gestión Logística v2.0
+            </span>
+            <h1 class="display-6 fw-bold tracking-tight">Plataforma de Gestión Hospitalaria Interna</h1>
+            <p class="fs-6 text-white-50 m-0 mt-2 border-start border-info border-3 ps-3" style="max-width: 750px;">
+                Panel de control centralizado para la supervisión de lotes, administración de personal y auditoría de stock de acceso rápido del Hospital Aurelio Crespo.
+            </p>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <h4 class="fw-bold text-dark mb-1">Módulos de Célula de Trabajo</h4>
+        <p class="text-muted small m-0">Seleccioná la sección del sistema que requerís auditar o modificar en tiempo real.</p>
+    </div>
+
+    <div class="row g-4 row-cols-1 row-cols-md-2 row-cols-xl-3">
+        
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm rounded-3 bg-white">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="p-3 bg-primary-subtle text-primary rounded-3">
+                                <i class="bi bi-grid-3x3-gap-fill fs-4"></i>
+                            </div>
+                            <span class="text-secondary small fw-semibold">Depósitos Satélites</span>
+                        </div>
+                        <h5 class="card-title fw-bold text-dark">Capacidad de Almacenaje</h5>
+                        <p class="card-text text-muted small">Control de huecos provisionales, cubicaje logístico y botiquines de acceso rápido por sector clínico.</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                        <span class="fs-3 fw-bold text-dark">0 <small class="fs-6 text-muted fw-normal">Libres</small></span>
+                        <a href="{% url 'lista_huecos' %}" class="btn btn-outline-primary btn-sm fw-bold px-3 rounded-2">Ver Huecos</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm rounded-3 bg-white">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="p-3 bg-info-subtle text-info-emphasis rounded-3">
+                                <i class="bi bi-shield-lock-fill fs-4"></i>
+                            </div>
+                            <span class="text-secondary small fw-semibold">Auditoría de Planta</span>
+                        </div>
+                        <h5 class="card-title fw-bold text-dark">Personal Supervisor</h5>
+                        <p class="card-text text-muted small">Gestión de usuarios y agentes sanitarios con rango jerárquico autorizados para asentar retiros de stock.</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                        <span class="fs-3 fw-bold text-dark">0 <small class="fs-6 text-muted fw-normal">Activos</small></span>
+                        <button class="btn btn-outline-info btn-sm fw-bold px-3 rounded-2 text-dark">Gestionar Equipo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm rounded-3 bg-white">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="p-3 bg-success-subtle text-success rounded-3">
+                                <i class="bi bi-box-seam-fill fs-4"></i>
+                            </div>
+                            <span class="text-secondary small fw-semibold">Inventario Central</span>
+                        </div>
+                        <h5 class="card-title fw-bold text-dark">Lotes en Stock</h5>
+                        <p class="card-text text-muted small">Trazabilidad física de cargamentos de medicamentos, control de números de lote y alertas de vencimiento.</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                        <span class="fs-3 fw-bold text-dark">0 <small class="fs-6 text-muted fw-normal">Registrados</small></span>
+                        <a href="{% url 'lista_lotes' %}" class="btn btn-outline-success btn-sm fw-bold px-3 rounded-2">Revisar Almacén</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm rounded-3 bg-light" style="border: 2px dashed #cbd5e1 !important;">
+                <div class="card-body p-4 d-flex flex-column justify-content-center text-center opacity-75">
+                    <div class="text-secondary mb-2">
+                        <i class="bi bi-plus-circle fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold text-secondary m-0">Módulo Integrado Adicional</h6>
+                    <small class="text-muted text-xs d-block mt-1">Fase técnica reservada para células externas del proyecto.</small>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-4 mt-5">
+        <div class="d-flex flex-column flex-xl-row align-items-xl-center justify-content-between gap-3">
+            <div>
+                <h5 class="fw-bold text-dark m-0">Acciones Clínicas Inmediatas</h5>
+                <p class="text-muted small m-0">Accesos directos de alta prioridad para mitigar tiempos de carga en guardia.</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'crear_producto' %}" class="btn btn-primary d-inline-flex align-items-center gap-2 px-4 py-2 fw-semibold shadow-sm">
+                    <i class="bi bi-file-earmark-plus"></i> Cargar Insumo
+                </a>
+                <a href="{% url 'crear_lote' %}" class="btn btn-success d-inline-flex align-items-center gap-2 px-4 py-2 fw-semibold shadow-sm">
+                    <i class="bi bi-bookmark-plus"></i> Registrar Lote
+                </a>
+                <a href="{% url 'ver_historial_movimientos' %}" class="btn btn-dark d-inline-flex align-items-center gap-2 px-4 py-2 fw-semibold shadow-sm">
+                    <i class="bi bi-clock-history"></i> Historial de Retiros
+                </a>
             </div>
         </div>
     </div>
 
-    <div class="col-md-4 mb-4">
-        <div class="card border-start border-info border-4 shadow-sm h-100">
-            <div class="card-body text-center">
-                <h6 class="text-uppercase text-muted small fw-bold">Personal Supervisor</h6>
-                <h2 class="display-4">{{ total_supervisores }}</h2>
-                <a href="{% url 'lista_supervisores' %}" class="btn btn-sm btn-outline-info mt-3">Gestionar Equipo</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4 mb-4">
-        <div class="card border-start border-success border-4 shadow-sm h-100">
-            <div class="card-body text-center">
-                <h6 class="text-uppercase text-muted small fw-bold">Lotes en Stock</h6>
-                <h2 class="display-4">{{ total_lotes }}</h2>
-                <a href="{% url 'lista_lotes' %}" class="btn btn-sm btn-outline-success mt-3">Revisar Vencimientos</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col-md-12 text-center py-4 bg-white rounded shadow-sm">
-        <h5 class="text-muted mb-3">Acciones Rápidas</h5>
-        <a href="{% url 'crear_producto' %}" class="btn btn-primary btn-lg me-2">➕ Cargar Insumo</a>
-        <a href="{% url 'crear_lote' %}" class="btn btn-success btn-lg">💉 Registrar Lote</a>
-    </div>
 </div>
 {% endblock %}

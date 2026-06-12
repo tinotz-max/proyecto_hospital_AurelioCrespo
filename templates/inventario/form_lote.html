@@ -1,48 +1,63 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow border-0">
-            <div class="card-header bg-success text-white">
-                <h4 class="mb-0">📥 Ingreso de Lote (Stock)</h4>
+<div class="container py-5" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 680px;">
+    
+    <a href="{% url 'lista_lotes' %}" class="btn btn-link text-decoration-none text-muted p-0 small mb-3 d-inline-flex align-items-center gap-1">
+        <i class="bi bi-arrow-left"></i> Volver al stock de lotes
+    </a>
+
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+            <div class="p-2.5 bg-success-subtle text-success rounded-3">
+                <i class="bi bi-box-seam fs-4"></i>
             </div>
-            <div class="card-body p-4">
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        {{ form.producto.label_tag }} {{ form.producto }}
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ form.laboratorio.label_tag }} {{ form.laboratorio }}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.nro_lote.label_tag }} {{ form.nro_lote }}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ form.vencimiento.label_tag }} {{ form.vencimiento }}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.cantidad_actual.label_tag }} {{ form.cantidad_actual }}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ form.nro_deposito.label_tag }} {{ form.nro_deposito }}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.sector.label_tag }} {{ form.sector }}
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-end mt-3">
-                        <button type="submit" class="btn btn-success btn-lg w-100">Registrar Ingreso</button>
-                    </div>
-                </form>
+            <div>
+                <h4 class="fw-bold text-dark m-0">Ingreso de Lote Crítico</h4>
+                <p class="text-muted small m-0">Asocie unidades físicas, partidas de empaque y sus fechas de vencimiento.</p>
             </div>
         </div>
+
+        <form method="post" autocomplete="off">
+            {% csrf_token %}
+            
+            {% endfor %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label small fw-semibold text-secondary mb-1">
+                        {{ field.label }}
+                    </label>
+                    
+                    {% if field.html_name == 'producto' or field.html_name == 'hueco' %}
+                        <select name="{{ field.html_name }}" id="{{ field.id_for_label }}" class="form-select rounded-2 py-2 px-3 {% if field.errors %}is-invalid{% endif %}" style="font-size: 0.95rem; border-color: #cbd5e1;">
+                            {% for choice in field.field.choices %}
+                                <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    {% else %}
+                        <input type="{{ field.field.widget.input_type|default:'text' }}" 
+                               name="{{ field.html_name }}" 
+                               id="{{ field.id_for_label }}" 
+                               class="form-control rounded-2 py-2 px-3 {% if field.errors %}is-invalid{% endif %}"
+                               style="font-size: 0.95rem; border-color: #cbd5e1;"
+                               placeholder="{% if 'fecha' in field.html_name %}AAAA-MM-DD{% endif %}"
+                               value="{{ field.value|default:'' }}"
+                               required>
+                    {% endif %}
+                    
+                    {% if field.errors %}
+                        <div class="invalid-feedback small">{{ field.errors|first }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <div class="d-flex gap-2 justify-content-end mt-4 pt-3 border-top">
+                <a href="{% url 'lista_lotes' %}" class="btn btn-light px-4 py-2 rounded-2 fw-semibold btn-sm text-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-success text-white px-4 py-2 rounded-2 fw-semibold btn-sm shadow-sm">
+                    Asentar Cargamento
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}

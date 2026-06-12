@@ -166,7 +166,7 @@ def registrar_retiro(request, hueco_id):
         messages.success(request, f"Retiro de {cantidad} {hueco.insumo_nombre} asentado en el historial con éxito.")
         return redirect('lista_huecos') # O la vista de tu dashboard
 
-    return render(request, 'inventario/registrar_retiro.html', {'hueco': hueco, 'departamentos': departamentos})
+    return render(request, 'inventario/form_retiro.html', {'hueco': hueco, 'departamentos': departamentos})
 
 
 @login_required

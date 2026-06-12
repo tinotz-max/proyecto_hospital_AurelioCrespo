@@ -12,4 +12,6 @@ urlpatterns = [
     path('huecos/nuevo/', views.crear_hueco, name='crear_hueco'),
     path('huecos/editar/<int:pk>/', views.editar_hueco, name='editar_hueco'),
     path('huecos/eliminar/<int:pk>/', views.eliminar_hueco, name='eliminar_hueco'),
+    path('huecos/retiro/<int:hueco_id>/', views.registrar_retiro, name='registrar_retiro'),
+    path('huecos/historial/', views.ver_historial_movimientos, name='ver_historial_movimientos'),
 ]

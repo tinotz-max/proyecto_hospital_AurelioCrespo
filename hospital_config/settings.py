@@ -119,5 +119,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 LOGIN_REDIRECT_URL = '/'  # Cambiaremos esto a 'dashboard' más adelante
 LOGOUT_REDIRECT_URL = '/accounts/login/'

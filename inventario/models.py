@@ -1,5 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+
+# ==========================================
+# 1. MODELOS DE BASE (Laboratorio y Producto)
+# ==========================================
 
 class Laboratorio(models.Model):
     nombre = models.CharField(max_length=100)
@@ -9,6 +14,7 @@ class Laboratorio(models.Model):
 
     def __str__(self):
         return self.nombre
+
 
 class Producto(models.Model):
     TIPO_CHOICES = [('MED', 'Medicamento'), ('DES', 'Descartable')]
@@ -22,17 +28,42 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombre
 
-# 🆕 AGREGAMOS ESTA CLASE PARA TU ABML DE HUECOS
-class Hueco(models.Model):
-    ESTADOS = [('LIBRE', 'Libre'), ('OCUPADO', 'Ocupado')]
-    
-    codigo = models.CharField(max_length=50, unique=True) # Ej: "Estante-A1"
-    nro_deposito = models.IntegerField()
-    sector = models.CharField(max_length=100)
-    estado = models.CharField(max_length=15, choices=ESTADOS, default='LIBRE')
+
+# ==========================================
+# 2. NUEVO SISTEMA LOGÍSTICO (Departamentos y Huecos de Acceso Rápido)
+# ==========================================
+
+class Departamento(models.Model):
+    nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre del Departamento")
+    piso_ubicacion = models.CharField(max_length=50, blank=True, null=True, verbose_name="Ubicación/Piso")
 
     def __str__(self):
-        return f"Hueco {self.codigo} ({self.sector})"
+        return self.nombre
+
+
+class Hueco(models.Model):
+    ESTADOS = [
+        ('DISPONIBLE', 'Con Stock'),
+        ('CRITICO', 'Stock Crítico'),
+        ('VACIO', 'Sin Stock'),
+    ]
+    
+    codigo_identificador = models.CharField(max_length=50, unique=True, verbose_name="Código de Hueco/Botiquín", default="PROV-000")
+    insumo_nombre = models.CharField(max_length=100, verbose_name="Medicamento / Insumo", default="Insumo Genérico")
+    cantidad_actual = models.PositiveIntegerField(default=0, verbose_name="Cantidad Disponible")
+    capacidad_maxima = models.PositiveIntegerField(verbose_name="Capacidad Máxima de Almacenaje", default=100)
+    
+    # Al poner null=True y blank=True, Django permite crear la columna sin exigir un Departamento cargado de antemano
+    departamento_asignado = models.ForeignKey(Departamento, on_delete=models.CASCADE, related_name="huecos", verbose_name="Departamento Destino", null=True, blank=True)
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='DISPONIBLE')
+
+    def __str__(self):
+        return f"{self.codigo_identificador} - {self.insumo_nombre}"
+
+
+# ==========================================
+# 3. GESTIÓN DE STOCK (Lotes y Movimientos Generales)
+# ==========================================
 
 class Lote(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='lotes')
@@ -41,9 +72,8 @@ class Lote(models.Model):
     cantidad_actual = models.PositiveIntegerField(default=0)
     vencimiento = models.DateField()
     
-    # 🔗 Conectamos el Lote al Hueco. Usamos models.PROTECT para cumplir tu Caso de Prueba:
-    # Si el hueco tiene un lote adentro, Django NO va a dejar que borren el hueco.
-    hueco = models.ForeignKey(Hueco, on_delete=models.PROTECT, null=True, blank=True, related_name='lotes')
+    # Enlace limpio al nuevo modelo de Hueco provisional
+    hueco = models.ForeignKey('Hueco', on_delete=models.SET_NULL, null=True, blank=True, related_name="lotes", verbose_name="Hueco Asignado")
     
     nro_deposito = models.IntegerField()
     sector = models.CharField(max_length=100)
@@ -51,6 +81,7 @@ class Lote(models.Model):
 
     def __str__(self):
         return f"{self.producto.nombre} - Lote: {self.nro_lote}"
+
 
 class Movimiento(models.Model):
     TIPOS_MOVIMIENTO = [
@@ -69,56 +100,22 @@ class Movimiento(models.Model):
     def __str__(self):
         return f"{self.tipo} - {self.lote.producto.nombre}"
 
-from django.db import models
-from django.contrib.auth.models import User
-from django.utils import timezone
 
-class Departamento(models.Model):
-    nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre del Departamento")
-    piso_ubicacion = models.CharField(max_length=50, blank=True, null=True, verbose_name="Ubicación/Piso")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def __str__(self):
-        return self.nombre
-
-
-class Hueco(models.Model):
-    ESTADOS = [
-        ('DISPONIBLE', 'Con Stock'),
-        ('CRITICO', 'Stock Crítico'),
-        ('VACIO', 'Sin Stock'),
-    ]
-    
-    codigo_identificador = models.CharField(max_length=50, unique=True, verbose_name="Código de Hueco/Botiquín")
-    insumo_nombre = models.CharField(max_length=100, verbose_name="Medicamento / Insumo")
-    cantidad_actual = models.PositiveIntegerField(default=0, verbose_name="Cantidad Disponible")
-    capacidad_maxima = models.PositiveIntegerField(verbose_name="Capacidad Máxima de Almacenaje")
-    departamento_asignado = models.ForeignKey(Departamento, on_delete=models.CASCADE, related_name="huecos", verbose_name="Departamento Destino")
-    estado = models.CharField(max_length=20, choices=ESTADOS, default='DISPONIBLE')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.codigo_identificador} - {self.insumo_nombre} ({self.departamento_asignado.nombre})"
-
+# ==========================================
+# 4. HISTORIAL DE MOVIMIENTOS REQUERIDO
+# ==========================================
 
 class HistorialRetiro(models.Model):
     """
-    Esta es la tabla principal solicitada para construir el historial detallado de movimientos.
+    Tabla principal para construir el historial detallado de movimientos de acceso rápido.
     """
     hueco = models.ForeignKey(Hueco, on_delete=models.SET_NULL, null=True, related_name="retiros", verbose_name="Hueco de Origen")
-    insumo_retirado = models.CharField(max_length=100, verbose_name="Insumo Extraído") # Guardamos el texto por si el hueco se borra
+    insumo_retirado = models.CharField(max_length=100, verbose_name="Insumo Extraído")
     departamento_destino = models.ForeignKey(Departamento, on_delete=models.CASCADE, verbose_name="Departamento/Uso Destinado")
     ubicacion_en_retiro = models.CharField(max_length=150, verbose_name="Ubicación exacta al momento del retiro")
     cantidad_retirada = models.PositiveIntegerField(verbose_name="Cantidad Retirada")
     fecha_retiro = models.DateTimeField(default=timezone.now, verbose_name="Fecha y Hora del Retiro")
     usuario_supervisor = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Supervisor Responsable")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def __str__(self):
-        return f"Retiro {self.cantidad_retirada}x {self.insumo_retirated} -> {self.departamento_destino.nombre} ({self.fecha_retiro.strftime('%d/%m/%Y %H:%M')})"
+        return f"Retiro {self.cantidad_retirada}x {self.insumo_retirado} -> {self.departamento_destino.nombre} ({self.fecha_retiro.strftime('%d/%m/%Y %H:%M')})"

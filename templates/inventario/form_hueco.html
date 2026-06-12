@@ -1,33 +1,60 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center mt-4">
-    <div class="col-md-6">
-        <div class="card shadow-lg border-0">
-            <div class="card-header bg-primary text-white py-3">
-                <h4 class="mb-0">{{ titulo }}</h4>
-            </div>
-            <div class="card-body p-4">
-                <form method="post" class="needs-validation">
-                    {% csrf_token %}
-                    
-                    {% for field in form %}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-muted">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                                <div class="text-danger small">{{ field.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
+<div class="container py-5" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 680px;">
+    
+    <a href="{% url 'lista_huecos' %}" class="btn btn-link text-decoration-none text-muted p-0 small mb-3 d-inline-flex align-items-center gap-1">
+        <i class="bi bi-arrow-left"></i> Volver a depósitos
+    </a>
 
-                    <div class="d-flex justify-content-between mt-4">
-                        <a href="{% url 'lista_huecos' %}" class="btn btn-light border">Volver al Listado</a>
-                        <button type="submit" class="btn btn-success px-4">Guardar Espacio</button>
-                    </div>
-                </form>
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+            <div class="p-2.5 bg-info-subtle text-info rounded-3">
+                <i class="bi bi-hdd-rack fs-4"></i>
+            </div>
+            <div>
+                <h4 class="fw-bold text-dark m-0">Habilitación de Espacio Físico</h4>
+                <p class="text-muted small m-0">Configure un nuevo casillero o estantería en los sectores del hospital.</p>
             </div>
         </div>
+
+        <form method="post" autocomplete="off">
+            {% csrf_token %}
+            
+            {% for field in form %}
+                <div class="mb-3 {% if field.field.widget.input_type == 'checkbox' %}form-check d-flex flex-row-reverse justify-content-end gap-2 align-items-center pt-2{% endif %}">
+                    
+                    {% if field.field.widget.input_type == 'checkbox' %}
+                        <input type="checkbox" name="{{ field.html_name }}" id="{{ field.id_for_label }}" class="form-check-input m-0 {% if field.errors %}is-invalid{% endif %}" style="width: 1.15rem; height: 1.15rem;">
+                        <label for="{{ field.id_for_label }}" class="form-check-label small fw-semibold text-secondary">
+                            {{ field.label }}
+                        </label>
+                    {% else %}
+                        <label for="{{ field.id_for_label }}" class="form-label small fw-semibold text-secondary mb-1">
+                            {{ field.label }}
+                        </label>
+                        <input type="{{ field.field.widget.input_type|default:'text' }}" 
+                               name="{{ field.html_name }}" 
+                               id="{{ field.id_for_label }}" 
+                               class="form-control rounded-2 py-2 px-3 {% if field.errors %}is-invalid{% endif %}"
+                               style="font-size: 0.95rem; border-color: #cbd5e1;"
+                               value="{{ field.value|default:'' }}"
+                               required>
+                    {% endif %}
+                    
+                    {% if field.errors %}
+                        <div class="invalid-feedback small d-block">{{ field.errors|first }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <div class="d-flex gap-2 justify-content-end mt-4 pt-3 border-top">
+                <a href="{% url 'lista_huecos' %}" class="btn btn-light px-4 py-2 rounded-2 fw-semibold btn-sm text-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary text-white px-4 py-2 rounded-2 fw-semibold btn-sm shadow-sm">
+                    Dar de Alta Espacio
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}
