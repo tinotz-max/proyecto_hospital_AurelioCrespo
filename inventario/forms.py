@@ -67,4 +67,4 @@ class RetiroForm(forms.ModelForm):
         widgets = {
             'departamento_destino': forms.Select(attrs={'class': 'form-control'}),
             'cantidad_retirada': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
-        }
+        }   

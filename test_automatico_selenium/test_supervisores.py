@@ -64,7 +64,7 @@ try:
 
     print("\n✅ TEST EXITOSO: El robot completó el ABML de supervisores sin trabas en Brave.")
 
-except Exception as e:
+except Exception as e:  
     print(f"\n❌ TEST FALLIDO: Se interrumpió la simulación de Supervisores.")
     print(f"Motivo técnico: {e}")
 
