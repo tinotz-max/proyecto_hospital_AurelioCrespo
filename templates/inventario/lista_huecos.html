@@ -32,31 +32,36 @@
                         <th class="text-secondary fw-semibold py-3 px-4 text-end" style="width: 15%;">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="border-0">
+                <tbody>
                     {% for hueco in huecos %}
-                        <tr style="border-bottom: 1px solid #f1f5f9;">
-                            <td class="py-3 px-4 fw-bold text-dark">#{{ hueco.id }}</td>
-                            <td class="py-3 px-3 text-secondary">{{ hueco.sector }}</td>
-                            <td class="py-3 px-3 text-secondary">{{ hueco.capacidad }} m³</td>
-                            <td class="py-3 px-3">
-                                {% if hueco.ocupado %}
-                                    <span class="badge bg-danger-subtle text-danger px-2.5 py-1.5 rounded-pill fw-semibold" style="font-size: 0.75rem;">Ocupado</span>
-                                {% else %}
-                                    <span class="badge bg-success-subtle text-success px-2.5 py-1.5 rounded-pill fw-semibold" style="font-size: 0.75rem;">Libre</span>
-                                {% endif %}
-                            </td>
-                            <td class="py-3 px-4 text-end">
-                                <a href="#" class="btn btn-sm btn-outline-secondary border-0 opacity-75"><i class="bi bi-pencil-square"></i></a>
-                            </td>
-                        </tr>
+                    <tr class="align-middle">
+                        <td class="fw-bold text-dark">#{{ hueco.codigo_identificador }}</td>
+                        <td>{{ hueco.departamento_asignado.nombre|default:"Sin Asignar" }}</td>
+                        <td class="text-secondary fw-medium">{{ hueco.cantidad_actual }} / {{ hueco.capacidad_maxima }} uds.</td>
+                        <td>
+                            {% if hueco.estado == 'DISPONIBLE' or hueco.estado == 'Con Stock' %}
+                                <span class="badge bg-success-subtle text-success rounded-pill px-2.5 py-1" style="font-size: 0.75rem;">Con Stock</span>
+                            {% elif hueco.estado == 'CRITICO' or hueco.estado == 'Stock Crítico' %}
+                                <span class="badge bg-warning-subtle text-warning rounded-pill px-2.5 py-1" style="font-size: 0.75rem;">Stock Crítico</span>
+                            {% else %}
+                                <span class="badge bg-danger-subtle text-danger rounded-pill px-2.5 py-1" style="font-size: 0.75rem;">Sin Stock</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'editar_hueco' hueco.pk %}" class="btn btn-sm btn-outline-primary border-0 p-1 rounded-2" title="Editar Espacio">
+                                    <i class="bi bi-pencil-square" style="font-size: 1.1rem;"></i>
+                                </a>
+                                <a href="{% url 'eliminar_hueco' hueco.pk %}" class="btn btn-sm btn-outline-danger border-0 p-1 rounded-2" title="Eliminar" onclick="return confirm('¿Está seguro de que desea eliminar este espacio físico?');">
+                                    <i class="bi bi-trash3" style="font-size: 1.1rem;"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
                     {% empty %}
-                        <tr>
-                            <td colspan="5" class="py-5 text-center bg-light">
-                                <div class="text-muted mb-2"><i class="bi bi-hdd-rack fs-2"></i></div>
-                                <h6 class="fw-bold text-secondary m-0">No se registran huecos de almacenaje</h6>
-                                <p class="text-muted small m-0 mt-1">Utilice el botón superior para asentar el primer espacio físico de guardia.</p>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">No hay huecos registrados.</td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>

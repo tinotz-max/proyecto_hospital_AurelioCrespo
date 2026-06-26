@@ -14,4 +14,6 @@ urlpatterns = [
     path('huecos/eliminar/<int:pk>/', views.eliminar_hueco, name='eliminar_hueco'),
     path('huecos/retiro/<int:hueco_id>/', views.registrar_retiro, name='registrar_retiro'),
     path('huecos/historial/', views.ver_historial_movimientos, name='ver_historial_movimientos'),
+    path('lote/editar/<int:pk>/', views.editar_lote, name='editar_lote'),
+    path('lote/eliminar/<int:pk>/', views.eliminar_lote, name='eliminar_lote'),
 ]

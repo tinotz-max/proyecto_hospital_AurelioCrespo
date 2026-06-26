@@ -1,44 +1,83 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center mt-4">
-    <div class="col-md-6">
-        <div class="card shadow-lg border-0">
-            <div class="card-header bg-primary text-white py-3 text-center">
-                <h4 class="mb-0">{% if editando %}Editar Datos de Supervisor{% else %}Registrar Nuevo Supervisor{% endif %}</h4>
+<div class="container py-5" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-7">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <a href="{% url 'dashboard' %}" class="text-decoration-none text-muted small"><i class="bi bi-arrow-left"></i> Volver a Panel</a>
             </div>
-            <div class="card-body p-4">
-                <form method="post">
-                    {% csrf_token %}
-                    
-                    <h6 class="text-primary border-bottom pb-2 mb-3">Datos de Acceso</h6>
-                    <div class="mb-3">
-                        {{ form.username.label_tag }} {{ form.username }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.email.label_tag }} {{ form.email }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.password.label_tag }} {{ form.password }}
-                    </div>
+            <h3 class="fw-bold text-dark m-0">
+                <i class="bi bi-person-badge text-primary me-2"></i>Gestión de Personal Sanitario
+            </h3>
+            <p class="text-muted small mt-1">Alta de supervisores y asignación de credenciales para auditoría en planta.</p>
+        </div>
+    </div>
 
-                    <h6 class="text-primary border-bottom pb-2 mt-4 mb-3">Información Institucional</h6>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ form.legajo.label_tag }} {{ form.legajo }}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.rol.label_tag }} {{ form.rol }}
-                        </div>
-                    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-3 bg-white overflow-hidden">
+                <div class="p-3 text-white text-center fw-semibold" style="background-color: #0a2540; font-size: 1.1rem; letter-spacing: 0.5px;">
+                    Registrar Nuevo Supervisor
+                </div>
+                
+                <div class="card-body p-4 p-md-5">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
 
-                    <div class="d-flex justify-content-end mt-4">
-                        <a href="{% url 'lista_supervisores' %}" class="btn btn-light me-2">Cancelar</a>
-                        <button type="submit" class="btn btn-success px-4">Crear Cuenta</button>
-                    </div>
-                </form>
+                        <h6 class="text-primary fw-bold mb-3 border-bottom pb-2" style="font-size: 0.85rem; letter-spacing: 0.5px; text-transform: uppercase;">Datos de Acceso al Sistema</h6>
+                        
+                        <div class="row g-3 mb-4">
+                            {% for field in form %}
+                                {% if field.name == 'username' or field.name == 'email' or field.name == 'password' or field.name == 'password1' or field.name == 'password2' %}
+                                    <div class="col-12">
+                                        <label for="{{ field.id_for_label }}" class="form-label small fw-bold text-secondary mb-1">
+                                            {{ field.label }} {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                                        </label>
+                                        <input type="{{ field.field.widget.input_type|default:'text' }}" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control rounded-2 {% if field.errors %}is-invalid{% endif %}" style="padding: 0.6rem 0.75rem;" placeholder="Ingrese {{ field.label|lower }}">
+                                        {% if field.errors %}
+                                            <div class="invalid-feedback small fw-medium">{% for error in field.errors %}{{ error }}{% endfor %}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <h6 class="text-primary fw-bold mb-3 border-bottom pb-2" style="font-size: 0.85rem; letter-spacing: 0.5px; text-transform: uppercase;">Información Institucional</h6>
+                        
+                        <div class="row g-3">
+                            {% for field in form %}
+                                {% if field.name != 'username' and field.name != 'email' and field.name != 'password' and field.name != 'password1' and field.name != 'password2' %}
+                                    <div class="col-md-6 col-12">
+                                        <label for="{{ field.id_for_label }}" class="form-label small fw-bold text-secondary mb-1">
+                                            {{ field.label }} {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                                        </label>
+                                        {% if field.field.widget.choices %}
+                                            <select name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-select rounded-2 {% if field.errors %}is-invalid{% endif %}" style="padding: 0.6rem 0.75rem;">
+                                                {% for choice_value, choice_label in field.field.choices %}
+                                                    <option value="{{ choice_value }}" {% if field.value|stringformat:"s" == choice_value|stringformat:"s" %}selected{% endif %}>{{ choice_label }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        {% else %}
+                                            <input type="{{ field.field.widget.input_type|default:'text' }}" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control rounded-2 {% if field.errors %}is-invalid{% endif %}" style="padding: 0.6rem 0.75rem;" value="{{ field.value|default_if_none:'' }}">
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-5 pt-3 border-top">
+                            <a href="{% url 'dashboard' %}" class="btn btn-light border px-4 py-2 rounded-2 fw-semibold btn-sm text-secondary">Cancelar</a>
+                            <button type="submit" class="btn text-white px-4 py-2 rounded-2 fw-semibold btn-sm shadow-sm" style="background-color: #198754; border-color: #198754;">
+                                Crear Cuenta de Agente
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+
 </div>
 {% endblock %}

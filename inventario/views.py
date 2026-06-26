@@ -174,3 +174,25 @@ def ver_historial_movimientos(request):
     """Vista para renderizar la tabla del historial general exigido"""
     movimientos = HistorialRetiro.objects.all().order_by('-fecha_retiro')
     return render(request, 'inventario/historial.html', {'movimientos': movimientos})
+
+# 5. MODIFICACIÓN: Editar un lote existente
+@login_required
+def editar_lote(request, pk):
+    lote = get_object_or_404(Lote, pk=pk)
+    if request.method == 'POST':
+        form = LoteForm(request.POST, instance=lote)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Lote actualizado con éxito.")
+            return redirect('lista_lotes')
+    else:
+        form = LoteForm(instance=lote)
+    return render(request, 'inventario/form_lote.html', {'form': form, 'titulo': 'Editar Lote'})
+
+# 6. BAJA: Eliminar un lote
+@login_required
+def eliminar_lote(request, pk):
+    lote = get_object_or_404(Lote, pk=pk)
+    lote.delete()
+    messages.success(request, "Lote eliminado correctamente del inventario.")
+    return redirect('lista_lotes')
